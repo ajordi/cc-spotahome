@@ -1,0 +1,77 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/*'
+        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones
+
+    ## Controllers
+    ##############
+
+    App\Shared\Infrastructure\Api\Controller\ApiController:
+        abstract: true
+        arguments:
+            - '@App\Shared\Application\Bus\Query\SimpleQueryBus'
+
+    App\PL\Homes\Infrastructure\Ui\Http\Controller\HomesGetController:
+        public: true
+        autowire: true
+        autoconfigure: false
+        arguments:
+            - '@App\Shared\Application\Bus\Query\SimpleQueryBus'
+            - '@App\Shared\Application\Bus\Query\QueryResponseRepository'
+            # - 'https://feeds.spotahome.com/mitula-UK-en.xml'
+            - '/tmp/mitula-UK-en.xml'
+        tags: ['controller.service_arguments']
+
+    ## Queries
+    ##########
+
+    App\PL\Homes\Application\Find\FindHomesQueryHandler:
+        public: true
+        autowire: true
+
+    App\Shared\Infrastructure\Http\FileFetcher:
+        arguments:
+            - '/tmp'
+
+    ## Listeners
+    ############
+
+    App\Shared\Application\Exception\ExceptionListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception }
+
+    ## Repositories
+    ###############
+    App\Shared\Application\Bus\Query\QueryResponseRepository: '@App\Shared\Infrastructure\Persistence\Query\RedisQueryResponseRepository'
+    App\Shared\Infrastructure\Persistence\Query\RedisQueryResponseRepository:
+        public: true
+        autowire: true
+        arguments:
+            - '@Predis\Client'
+            - 3600
+
+    ## Others
+    ############
+    Predis\Client:
+        arguments:
+            - host: redis
+            - port: 6379
+
+

@@ -1,0 +1,45 @@
+version: '3.5'
+
+networks:
+    server-network:
+        driver: bridge
+
+volumes:
+  mysql-vol:
+    driver: local
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    volumes:
+      - ./app/public:/opt/app/public
+      - ./etc/infrastructure/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./etc/infrastructure/nginx/fastcgi_params:/etc/nginx/fastcgi_params:ro
+      - ./etc/infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./etc/infrastructure/nginx/ssl:/etc/ssl
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - server-network
+    depends_on:
+      - php
+  php:
+      build:
+        context: .
+        dockerfile: docker/php/Dockerfile
+      volumes:
+        - ./app:/opt/app:delegated
+        - ./docker/php/entrypoint.sh:/entrypoint.sh
+      networks:
+        - server-network
+      entrypoint:
+        - /entrypoint.sh
+      env_file:
+        - .env
+  redis:
+    image: redis:5.0
+    networks:
+      - server-network

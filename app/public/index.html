@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <style>
+            th {
+                cursor: pointer;
+            }
+            a {
+                visibility: hidden;
+            }
+        </style>
+        <title>CC Spot a home</title>
+    </head>
+    <body>
+        <a href="#" target="_blank" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Download JSON</a>
+        <table id="myTable" class="table table-hover">
+            <thead>
+            <tr>
+                <th scope="col" id="id" data-direction="ASC">Id</th>
+                <th scope="col" id="title" data-direction="ASC">Title</th>
+                <th scope="col" id="city" data-direction="ASC">City</th>
+                <th scope="col" id="url" data-direction="ASC">Url</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" ></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script>
+            function table(field, direction){
+                $('#myTable tbody').empty();
+                var url = "api/v1/homes?field=" + field + "&direction=" + direction;
+                $.ajax({
+                    type: "GET",
+                    url: url,
+                    dataType: "json",
+                    success: function (data) {
+                        $.each( data, function( key, value ) {
+                            $('#myTable > tbody:last-child').append(
+                                '<tr>\n' +
+                                '<td>' + value.id + '</td>\n' +
+                                '<td>' + value.title + '</td>\n' +
+                                '<td>' + value.city + '</td>\n' +
+                                '<td>' + value.url + '</td>\n' +
+                                '</tr>');
+                        });
+                        $('#myTable #' + field).data("direction", direction === "ASC" ? "DESC" : "ASC");
+                        $('a').attr("href", url);
+                        $('a').css("visibility", "visible");
+                    }
+                });
+            }
+            $("#myTable th").click(function(e) {
+                var field = e.target.id;
+                var direction = $(this).data("direction");
+
+                table(field, direction);
+            });
+            table('id', 'ASC');
+        </script>
+    </body>
+</html>

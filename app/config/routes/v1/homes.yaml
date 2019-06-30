@@ -1,0 +1,4 @@
+get_homes:
+  path: /
+  controller: App\PL\Homes\Infrastructure\Ui\Http\Controller\HomesGetController::execute
+  methods: GET

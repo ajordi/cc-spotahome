@@ -1,0 +1,5 @@
+
+homes:
+  resource: "homes.yaml"
+  prefix: /homes
+  trailing_slash_on_root: false
