@@ -35,8 +35,7 @@ services:
         arguments:
             - '@App\Shared\Application\Bus\Query\SimpleQueryBus'
             - '@App\Shared\Application\Bus\Query\QueryResponseRepository'
-            # - 'https://feeds.spotahome.com/mitula-UK-en.xml'
-            - '/tmp/mitula-UK-en.xml'
+            - 'https://feeds.spotahome.com/mitula-UK-en.xml'
         tags: ['controller.service_arguments']
 
     ## Queries
